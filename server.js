@@ -12,16 +12,21 @@ dotenv.config();
 const app = express();
 
 // Middleware
-const allowedOrigins = [process.env.CLIENT_URL || 'http://localhost:3000'];
+// Parse comma separated client URLs, helping support multiple environments
+const allowedOrigins = process.env.CLIENT_URL 
+    ? process.env.CLIENT_URL.split(',') 
+    : ['http://localhost:3000'];
+
 app.use(cors({
     origin: function(origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
-        // or check if origin is explicitly allowed
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
             callback(null, true);
         } else {
-            // Check gracefully for potential subdomain variants later if needed
-            callback(null, false); // Block other domains implicitly
+            // Give a specific error when blocked to prevent obscure "Failed to fetch"
+            callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
         }
     },
     credentials: true
