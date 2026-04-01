@@ -12,23 +12,9 @@ dotenv.config();
 const app = express();
 
 // Middleware
-// Parse comma separated client URLs, helping support multiple environments
-const allowedOrigins = process.env.CLIENT_URL 
-    ? process.env.CLIENT_URL.split(',') 
-    : ['http://localhost:3000'];
-
 app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-            callback(null, true);
-        } else {
-            // Give a specific error when blocked to prevent obscure "Failed to fetch"
-            callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
-        }
-    },
+    origin: process.env.CLIENT_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 app.use(express.json());
@@ -44,7 +30,12 @@ app.use('/api/user', userRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-    res.send('Server running');
+    res.status(200).json({ message: 'Server running' });
+});
+
+// 404 Catch-All to prevent HTML responses
+app.use('*', (req, res) => {
+    res.status(404).json({ error: "Route not found", path: req.originalUrl });
 });
 
 const PORT = process.env.PORT || 5000;
