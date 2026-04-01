@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AILoading from './AILoading';
+import API_BASE_URL from '../config';
 
 const CareerPlanView = ({ token, setView }) => {
     const [profile, setProfile] = useState(null);
@@ -12,7 +13,7 @@ const CareerPlanView = ({ token, setView }) => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/user/career-profile', {
+                const response = await fetch(`${API_BASE_URL}/api/user/career-profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -118,7 +119,7 @@ const CareerPlanView = ({ token, setView }) => {
         };
 
         try {
-            const res = await fetch('http://localhost:5000/api/user/career-profile', {
+            const res = await fetch(`${API_BASE_URL}/api/user/career-profile`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)

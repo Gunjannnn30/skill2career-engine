@@ -1,0 +1,6 @@
+node_modules/
+.env
+client/build/
+test.js
+testUserApi.js
+.DS_Store

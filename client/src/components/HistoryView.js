@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import RoleCard from './RoleCard';
+import API_BASE_URL from '../config';
 
 const HistoryView = ({ token, setView }) => {
     const [history, setHistory] = useState([]);
@@ -9,7 +10,7 @@ const HistoryView = ({ token, setView }) => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/user/history', {
+                const res = await fetch(`${API_BASE_URL}/api/user/history`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();

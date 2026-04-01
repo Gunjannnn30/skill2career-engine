@@ -12,7 +12,20 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [process.env.CLIENT_URL || 'http://localhost:3000'];
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        // or check if origin is explicitly allowed
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            // Check gracefully for potential subdomain variants later if needed
+            callback(null, false); // Block other domains implicitly
+        }
+    },
+    credentials: true
+}));
 app.use(express.json());
 
 // Routes

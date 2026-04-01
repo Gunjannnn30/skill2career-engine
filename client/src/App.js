@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import AILoading from './components/AILoading';
 import GoalPlanner from './components/GoalPlanner';
 import CareerPlanView from './components/CareerPlanView';
+import API_BASE_URL from './config';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -31,7 +32,7 @@ function App() {
   const saveAnalysis = async (input, result) => {
     if (!token) return;
     try {
-      await fetch('http://localhost:5000/api/user/save-analysis', {
+      await fetch(`${API_BASE_URL}/api/user/save-analysis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ function App() {
     setResponseData(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/ai/analyze', {
+      const response = await fetch(`${API_BASE_URL}/api/ai/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -170,7 +171,7 @@ function App() {
                 formData.append('file', file);
 
                 try {
-                  const response = await fetch('http://localhost:5000/api/ai/upload-resume', {
+                  const response = await fetch(`${API_BASE_URL}/api/ai/upload-resume`, {
                     method: 'POST',
                     body: formData,
                   });

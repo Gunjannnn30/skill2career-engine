@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AILoading from './AILoading';
+import API_BASE_URL from '../config';
 
 const CareerModal = ({ roleName, onClose }) => {
     const [loading, setLoading] = useState(true);
@@ -9,7 +10,7 @@ const CareerModal = ({ roleName, onClose }) => {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/ai/career-details', {
+                const response = await fetch(`${API_BASE_URL}/api/ai/career-details`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ role: roleName })

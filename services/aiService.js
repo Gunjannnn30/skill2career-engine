@@ -175,8 +175,16 @@ Return clean JSON ONLY
     let content = data.choices[0].message.content;
     
     // Clean potential markdown blocks
-    if (content.startsWith('```')) {
-        content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (match) {
+        content = match[1].trim();
+    } else {
+        // Fallback: sometimes the AI returns JSON without markdown but with text before/after.
+        const firstBrace = content.indexOf('{');
+        const lastBrace = content.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
+            content = content.substring(firstBrace, lastBrace + 1);
+        }
     }
 
     const parsed = JSON.parse(content);
@@ -250,8 +258,15 @@ Return JSON ONLY matching this exact structure:
         
         const data = await response.json();
         let content = data.choices[0].message.content;
-        if (content.startsWith('```')) {
-            content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (match) {
+            content = match[1].trim();
+        } else {
+            const firstBrace = content.indexOf('{');
+            const lastBrace = content.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
+                content = content.substring(firstBrace, lastBrace + 1);
+            }
         }
 
         const parsed = JSON.parse(content);
@@ -353,8 +368,15 @@ Return Format EXACTLY like this:
         
         const data = await response.json();
         let content = data.choices[0].message.content;
-        if (content.startsWith('```')) {
-            content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (match) {
+            content = match[1].trim();
+        } else {
+            const firstBrace = content.indexOf('{');
+            const lastBrace = content.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
+                content = content.substring(firstBrace, lastBrace + 1);
+            }
         }
 
         const parsed = JSON.parse(content);

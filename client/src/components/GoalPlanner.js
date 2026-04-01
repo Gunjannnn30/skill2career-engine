@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AILoading from './AILoading';
+import API_BASE_URL from '../config';
 
 const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
     const [goal, setGoal] = useState('');
@@ -20,7 +21,7 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
         const fetchProfile = async () => {
             if (!token) return;
             try {
-                const res = await fetch('http://localhost:5000/api/user/career-profile', { headers: { 'Authorization': `Bearer ${token}` } });
+                const res = await fetch(`${API_BASE_URL}/api/user/career-profile`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const data = await res.json();
                 if (res.ok && data && data.goal) {
                     setGoal(data.goal);
@@ -82,7 +83,7 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
 
         try {
             // 1. Fetch Plan from AI API mapped natively with advanced Real-Time contexts
-            const aiRes = await fetch('http://localhost:5000/api/ai/goal-analysis', {
+            const aiRes = await fetch(`${API_BASE_URL}/api/ai/goal-analysis`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -105,7 +106,7 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
 
             // 2. Save explicitly to User Career Profile mapping verified advanced attributes
             if (token) {
-                const saveRes = await fetch('http://localhost:5000/api/user/career-profile', {
+                const saveRes = await fetch(`${API_BASE_URL}/api/user/career-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({
