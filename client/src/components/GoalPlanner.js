@@ -136,7 +136,8 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
             }
 
         } catch (err) {
-            setError(err.message);
+            console.error("ERROR:", err);
+            setError(err.message || JSON.stringify(err));
         } finally {
             setLoading(false);
         }

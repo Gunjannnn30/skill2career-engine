@@ -19,18 +19,18 @@ const Login = ({ setToken, setView }) => {
                 body: JSON.stringify({ email, password })
             });
 
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text);
-            }
-            
             const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.error || data.message || "Something went wrong");
+            }
             
             localStorage.setItem("token", data.token);
             setToken(data.token);
             setView('main');
         } catch (err) {
-            setError(err.message);
+            console.error("ERROR:", err);
+            setError(err.message || JSON.stringify(err));
         } finally {
             setLoading(false);
         }

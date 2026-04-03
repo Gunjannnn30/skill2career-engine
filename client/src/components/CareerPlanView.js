@@ -18,20 +18,14 @@ const CareerPlanView = ({ token, setView }) => {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
-                if (!response.ok) throw new Error('Failed to fetch Career Profile');
-                const text = await response.text();
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.error("❌ HTML RESPONSE RECEIVED:", text);
-                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || data.message || "Something went wrong");
                 }
-                
-                // If data is null (never set up)
                 setProfile(data);
             } catch (err) {
-                setError(err.message);
+                console.error("ERROR:", err);
+                setError(err.message || JSON.stringify(err));
             } finally {
                 setLoading(false);
             }
@@ -132,19 +126,16 @@ const CareerPlanView = ({ token, setView }) => {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)
             });
-            if (res.ok) {
-                const text = await res.text();
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.error("❌ HTML RESPONSE RECEIVED:", text);
-                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
-                }
-                setProfile(data.data);
-                if (typeof skillToInject !== 'string') setNewSkill('');
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || data.message || "Something went wrong");
             }
-        } catch (err) { } finally { setIsUpdating(false); }
+            setProfile(data.data);
+            if (typeof skillToInject !== 'string') setNewSkill('');
+        } catch (err) { 
+            console.error("ERROR:", err);
+            setError(err.message || JSON.stringify(err));
+        } finally { setIsUpdating(false); }
     };
 
     return (

@@ -18,24 +18,15 @@ const CareerModal = ({ roleName, onClose }) => {
                     body: JSON.stringify({ role: roleName })
                 });
 
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Server is unavailable or returned an invalid response.");
+                const data = await response.json();
+                if (!response.ok) {
+                   throw new Error(data.error || data.message || "Something went wrong");
                 }
-
-                const text = await response.text();
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.error("❌ HTML RESPONSE RECEIVED:", text);
-                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
-                }
-                if (!response.ok) throw new Error(data.error || data.message || 'Failed to fetch details');
                 
                 setDetails(data.data);
             } catch (err) {
-                setError(err.message);
+                console.error("ERROR:", err);
+                setError(err.message || JSON.stringify(err));
             } finally {
                 setLoading(false);
             }

@@ -121,17 +121,9 @@ function App() {
         body: JSON.stringify({ text: inputText }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error('API request failed');
-      }
-
-      const text = await response.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        console.error("❌ HTML RESPONSE RECEIVED:", text);
-        throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+        throw new Error(data.error || data.message || "Something went wrong");
       }
       setResponseData(data);
       
@@ -140,7 +132,8 @@ function App() {
       }
       
     } catch (err) {
-      setError(err.message || 'An error occurred while analyzing.');
+      console.error("ERROR:", err);
+      setError(err.message || JSON.stringify(err));
     } finally {
       setLoading(false);
     }
@@ -183,24 +176,9 @@ function App() {
                     body: formData,
                   });
 
+                  const data = await response.json();
                   if (!response.ok) {
-                    let errorMsg = 'Failed to upload and parse resume';
-                    try {
-                      const errorData = await response.json();
-                      errorMsg = errorData.error || errorData.message || errorMsg;
-                    } catch (e) {
-                      console.error("Non-JSON API error response.");
-                    }
-                    throw new Error(errorMsg);
-                  }
-
-                  const text = await response.text();
-                  let data;
-                  try {
-                    data = JSON.parse(text);
-                  } catch (e) {
-                    console.error("❌ HTML RESPONSE RECEIVED:", text);
-                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                    throw new Error(data.error || data.message || "Something went wrong");
                   }
                   const resultData = data.success ? data.data : data;
                   setResponseData(resultData);
@@ -210,7 +188,8 @@ function App() {
                   }
                   
                 } catch (err) {
-                  setError(err.message || 'An error occurred while analyzing the resume.');
+                  console.error("ERROR:", err);
+                  setError(err.message || JSON.stringify(err));
                 } finally {
                   setLoading(false);
                 }

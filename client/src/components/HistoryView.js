@@ -14,23 +14,14 @@ const HistoryView = ({ token, setView }) => {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const contentType = res.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Server is unavailable or returned an invalid response.");
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || data.message || "Something went wrong");
                 }
-
-                const text = await res.text();
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.error("❌ HTML RESPONSE RECEIVED:", text);
-                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
-                }
-                if (!res.ok) throw new Error(data.error || 'Failed to fetch history');
                 setHistory(data);
             } catch (err) {
-                setError(err.message);
+                console.error("ERROR:", err);
+                setError(err.message || JSON.stringify(err));
             } finally {
                 setLoading(false);
             }
