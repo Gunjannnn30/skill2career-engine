@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import API_BASE_URL from '../config';
 
 const Register = ({ setToken, setView }) => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    console.log("API URL:", API_URL);
-
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -17,20 +14,18 @@ const Register = ({ setToken, setView }) => {
         setError('');
 
         try {
-            const res = await fetch(`${API_URL}/api/auth/register`, {
+            const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
             });
-            const text = await res.text();
-
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (err) {
-                console.error("RAW RESPONSE:", text);
-                throw new Error("Server returned invalid JSON");
+            
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server is unavailable or starting up. Please try again in a minute.");
             }
+            
+            const data = await res.json();
 
             if (!res.ok) throw new Error(data.error || 'Registration failed');
 

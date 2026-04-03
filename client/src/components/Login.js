@@ -18,6 +18,12 @@ const Login = ({ setToken, setView }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
+
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server is unavailable or starting up. Please try again in a minute.");
+            }
+
             const data = await res.json();
             
             if (!res.ok) throw new Error(data.error || 'Login failed');

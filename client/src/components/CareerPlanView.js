@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AILoading from './AILoading';
 import API_BASE_URL from '../config';
+import StudyResources from './StudyResources';
 
 const CareerPlanView = ({ token, setView }) => {
     const [profile, setProfile] = useState(null);
@@ -215,6 +216,8 @@ const CareerPlanView = ({ token, setView }) => {
                     </div>
                 ))}
             </div>
+
+            <StudyResources skills={profile.targetSkills} />
 
             {profile.recommendedProjects && profile.recommendedProjects.length > 0 && (
                 <div style={{ marginTop: '50px' }}>

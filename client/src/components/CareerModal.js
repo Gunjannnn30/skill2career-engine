@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import AILoading from './AILoading';
 import API_BASE_URL from '../config';
+import StudyResources from './StudyResources';
+import { getSkillUrl } from '../utils/skillDictionary';
 
 const CareerModal = ({ roleName, onClose }) => {
     const [loading, setLoading] = useState(true);
@@ -15,7 +17,12 @@ const CareerModal = ({ roleName, onClose }) => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ role: roleName })
                 });
-                
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Server is unavailable or returned an invalid response.");
+                }
+
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || data.message || 'Failed to fetch details');
                 
@@ -79,7 +86,7 @@ const CareerModal = ({ roleName, onClose }) => {
                                     <h4>🎯 Core Skills Required</h4>
                                     <div className="skills-tags">
                                         {details.skills.map((skill, i) => (
-                                            <span key={i} className="tag" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.2)' }}>{skill}</span>
+                                            <a key={i} href={getSkillUrl(skill)} target="_blank" rel="noopener noreferrer" className="tag interactive-tag" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.2)' }}>{skill}</a>
                                         ))}
                                     </div>
                                 </div>
@@ -125,6 +132,8 @@ const CareerModal = ({ roleName, onClose }) => {
                                     </div>
                                 </div>
                             )}
+
+                            <StudyResources skills={details.skills} />
                         </>
                     )}
                 </div>

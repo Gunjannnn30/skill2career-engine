@@ -13,7 +13,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
@@ -36,6 +36,14 @@ app.get('/', (req, res) => {
 // 404 Catch-All to prevent HTML responses
 app.use('*', (req, res) => {
     res.status(404).json({ error: "Route not found", path: req.originalUrl });
+});
+
+// Global Error Handler to ensure JSON responses on errors
+app.use((err, req, res, next) => {
+    console.error("Global Error Handler:", err);
+    res.status(err.status || 500).json({ 
+        error: err.message || "Internal Server Error" 
+    });
 });
 
 const PORT = process.env.PORT || 5000;

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import CareerModal from './CareerModal';
+import StudyResources from './StudyResources';
+import { getSkillUrl } from '../utils/skillDictionary';
 
 const RoleCard = ({ roleObj }) => {
   const [showModal, setShowModal] = useState(false);
@@ -24,7 +26,7 @@ const RoleCard = ({ roleObj }) => {
             <h4 className="section-subtitle">Skills to Acquire</h4>
             <div className="skills-tags">
               {roleObj.missingSkills.map(skill => (
-                <span key={skill} className="tag missing-tag">{skill}</span>
+                <a key={skill} href={getSkillUrl(skill)} target="_blank" rel="noopener noreferrer" className="tag missing-tag interactive-tag">{skill}</a>
               ))}
             </div>
           </div>
@@ -43,6 +45,8 @@ const RoleCard = ({ roleObj }) => {
             </div>
           </div>
         )}
+
+        <StudyResources skills={roleObj.missingSkills} />
       </div>
       
       <div style={{ marginTop: 'auto' }}>

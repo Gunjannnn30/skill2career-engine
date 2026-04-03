@@ -13,6 +13,12 @@ const HistoryView = ({ token, setView }) => {
                 const res = await fetch(`${API_BASE_URL}/api/user/history`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Server is unavailable or returned an invalid response.");
+                }
+
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Failed to fetch history');
                 setHistory(data);
