@@ -96,8 +96,8 @@ const uploadResumeController = async (req, res) => {
             });
         } catch (apiError) {
             console.error('AI API logic failed:', apiError);
-            if (apiError.data) {
-                return res.status(apiError.statusCode || 500).json({ error: apiError.data });
+            if (apiError.statusCode) {
+                return res.status(apiError.statusCode || 401).json({ error: apiError.message || "Unauthorized" });
             }
             // If it's a code error naturally thrown
             console.warn('AI API logic failed, overriding statically:', apiError.message);
@@ -123,8 +123,7 @@ const uploadResumeController = async (req, res) => {
     } catch (error) {
         console.error("PDF PARSE ERROR:", error);
         return res.status(500).json({
-            message: "Resume parsing failed",
-            error: error.message,
+            error: error.message || "Resume parsing failed"
         });
     }
 };

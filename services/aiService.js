@@ -122,7 +122,8 @@ CRITICAL INSTRUCTIONS:
 
     if (!response.ok) {
         console.error("OpenRouter error:", data);
-        throw { statusCode: 500, data: data };
+        const errMsg = (data.error && data.error.message) ? data.error.message : (data.error || "Unauthorized");
+        throw { statusCode: response.status || 401, message: errMsg };
     }
     let content = data.choices[0].message.content;
     
@@ -175,10 +176,12 @@ const getCareerInsights = async (roleName) => {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
+                "X-Title": "Skill2Career AI Engine"
             },
             body: JSON.stringify({
-                model: "openai/gpt-3.5-turbo",
+                model: "mistralai/mistral-7b-instruct",
                 messages: [
                     {
                         role: "system",
@@ -206,7 +209,14 @@ Return JSON ONLY matching this exact structure:
             })
         });
 
-        if (!response.ok) throw new Error(`AI API failed: ${response.statusText}`);
+        if (!response.ok) {
+            let errMsg = `AI API failed: ${response.statusText}`;
+            try { 
+                const errData = await response.json(); 
+                errMsg = errData.error?.message || errData.error || errMsg;
+            } catch(e) {}
+            throw new Error(errMsg);
+        }
         
         const data = await response.json();
         let content = data.choices[0].message.content;
@@ -268,10 +278,12 @@ const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) 
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
+                "X-Title": "Skill2Career AI Engine"
             },
             body: JSON.stringify({
-                model: "openai/gpt-3.5-turbo",
+                model: "mistralai/mistral-7b-instruct",
                 messages: [
                     {
                         role: "system",
@@ -316,7 +328,14 @@ Return Format EXACTLY like this:
             })
         });
 
-        if (!response.ok) throw new Error(`AI API failed: ${response.statusText}`);
+        if (!response.ok) {
+            let errMsg = `AI API failed: ${response.statusText}`;
+            try { 
+                const errData = await response.json(); 
+                errMsg = errData.error?.message || errData.error || errMsg;
+            } catch(e) {}
+            throw new Error(errMsg);
+        }
         
         const data = await response.json();
         let content = data.choices[0].message.content;
