@@ -67,43 +67,34 @@ const analyzeText = (text) => {
 };
 
 const generateAIResponse = async (text) => {
-    const apiKey = process.env.AI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey || apiKey === 'your_api_key_here') {
-        throw new Error('AI_API_KEY is missing or unconfigured');
+        throw { statusCode: 500, data: { error: "OpenRouter API key missing" } };
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
+            "X-Title": "Skill2Career AI Engine"
         },
         body: JSON.stringify({
-            model: "openai/gpt-3.5-turbo",
+            model: "mistralai/mistral-7b-instruct",
             messages: [
                 {
-                    role: "system",
-                    content: "You are an expert AI career advisor."
-                },
-                {
                     role: "user",
-                    content: `
-You are an expert AI career advisor.
-
-Analyze the user's skills and suggest MULTIPLE relevant career roles.
+                    content: `Analyze this resume and user skills. Suggest MULTIPLE relevant career roles.
 
 Input: ${text}
 
 IMPORTANT RULES:
-
 * Return ONLY valid JSON
 * DO NOT return explanations
 * DO NOT return markdown
 
----
-
 Return format:
-
 {
 "skills": ["skill1", "skill2"],
 "roles": [
@@ -112,66 +103,27 @@ Return format:
 "match": 80,
 "missingSkills": ["python", "sql"],
 "roadmap": [
-"Learn python basics",
-"Learn SQL",
-"Build data analysis projects",
-"Prepare for interviews"
+"Learn python basics"
 ]
 }
 ]
 }
-
----
 
 CRITICAL INSTRUCTIONS:
-
-1. Generate AT LEAST 3–5 DIFFERENT roles.
-
-2. Roles MUST vary based on skills:
-   * Tech skills → Developer roles
-   * Communication → HR, Manager, Consultant
-   * Business/Excel → Analyst roles
-   * Mixed → Hybrid roles
-
-3. STRICT MATCH SCORING: You MUST be ruthlessly authentic with the "match" score. Calculate the exact mathematical intersection of their current explicitly listed skills versus the total required skills for that exact role. If their skills barely match the role requirements, DO NOT inflate the score. A 5%, 10%, or 20% match is perfectly acceptable and absolutely required if they lack the core competencies. Do not default to high scores just to be polite. Force reality.
-
-4. DO NOT repeat similar roles.
-
-5. Each role must feel realistic and career-relevant.
-
----
-
-Examples:
-
-Input: "I know public speaking and Excel"
-→ Roles:
-
-* Business Analyst
-* Product Manager
-* HR Manager
-* Operations Manager
-
-Input: "I know Java and DSA"
-→ Roles:
-
-* Backend Developer
-* Software Engineer
-* System Engineer
-
----
-
-Return clean JSON ONLY
-`
+1. Generate AT LEAST 3-5 DIFFERENT roles.
+2. STRICT MATCH SCORING: You MUST be ruthlessly authentic with the "match" score.
+3. Return clean JSON ONLY`
                 }
             ]
         })
     });
 
-    if (!response.ok) {
-        throw new Error(`AI API failed: ${response.statusText}`);
-    }
-
     const data = await response.json();
+
+    if (!response.ok) {
+        console.error("OpenRouter error:", data);
+        throw { statusCode: 500, data: data };
+    }
     let content = data.choices[0].message.content;
     
     // Clean potential markdown blocks
@@ -216,7 +168,7 @@ const getCareerInsights = async (roleName) => {
     }
 
     try {
-        const apiKey = process.env.AI_API_KEY;
+        const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -309,7 +261,7 @@ Return JSON ONLY matching this exact structure:
 
 const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) => {
     try {
-        const apiKey = process.env.AI_API_KEY;
+        const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {

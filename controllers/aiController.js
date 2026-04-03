@@ -59,6 +59,10 @@ const pdfParse = require('pdf-parse');
 // @route   POST /api/ai/upload-resume
 const uploadResumeController = async (req, res) => {
     try {
+        if (!process.env.OPENROUTER_API_KEY) {
+            return res.status(500).json({ error: "OpenRouter API key missing" });
+        }
+
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
@@ -91,6 +95,11 @@ const uploadResumeController = async (req, res) => {
                 }
             });
         } catch (apiError) {
+            console.error('AI API logic failed:', apiError);
+            if (apiError.data) {
+                return res.status(apiError.statusCode || 500).json({ error: apiError.data });
+            }
+            // If it's a code error naturally thrown
             console.warn('AI API logic failed, overriding statically:', apiError.message);
             const parsed = analyzeText(extractedText);
             const roles = matchRoles(parsed.skills);
