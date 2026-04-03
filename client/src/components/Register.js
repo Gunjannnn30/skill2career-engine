@@ -25,7 +25,14 @@ const Register = ({ setToken, setView }) => {
                 throw new Error("Server is unavailable or starting up. Please try again in a minute.");
             }
             
-            const data = await res.json();
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error("❌ HTML RESPONSE RECEIVED:", text);
+                throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+            }
 
             if (!res.ok) throw new Error(data.error || 'Registration failed');
 

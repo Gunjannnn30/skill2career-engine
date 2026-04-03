@@ -22,7 +22,14 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
             if (!token) return;
             try {
                 const res = await fetch(`${API_BASE_URL}/api/user/career-profile`, { headers: { 'Authorization': `Bearer ${token}` } });
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("❌ HTML RESPONSE RECEIVED:", text);
+                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                }
                 if (res.ok && data && data.goal) {
                     setGoal(data.goal);
                     setTimeline(data.timeline);

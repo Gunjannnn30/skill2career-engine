@@ -125,7 +125,14 @@ function App() {
         throw new Error('API request failed');
       }
 
-      const data = await response.json();
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error("❌ HTML RESPONSE RECEIVED:", text);
+        throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+      }
       setResponseData(data);
       
       if (token) {
@@ -187,7 +194,14 @@ function App() {
                     throw new Error(errorMsg);
                   }
 
-                  const data = await response.json();
+                  const text = await response.text();
+                  let data;
+                  try {
+                    data = JSON.parse(text);
+                  } catch (e) {
+                    console.error("❌ HTML RESPONSE RECEIVED:", text);
+                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                  }
                   const resultData = data.success ? data.data : data;
                   setResponseData(resultData);
                   

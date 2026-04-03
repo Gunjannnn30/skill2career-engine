@@ -19,7 +19,14 @@ const HistoryView = ({ token, setView }) => {
                     throw new Error("Server is unavailable or returned an invalid response.");
                 }
 
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("❌ HTML RESPONSE RECEIVED:", text);
+                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                }
                 if (!res.ok) throw new Error(data.error || 'Failed to fetch history');
                 setHistory(data);
             } catch (err) {

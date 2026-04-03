@@ -13,11 +13,19 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: process.env.CLIENT_URL || true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+origin: [
+"http://localhost:3000",
+"https://skill2career-frontend.vercel.app"
+],
+methods: ["GET", "POST", "PUT", "DELETE"],
+credentials: true
 }));
 app.use(express.json());
+
+app.use((req, res, next) => {
+    console.log("API HIT:", req.method, req.originalUrl);
+    next();
+});
 
 // Routes
 const authRoutes = require('./routes/authRoutes');

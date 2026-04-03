@@ -23,7 +23,14 @@ const CareerModal = ({ roleName, onClose }) => {
                     throw new Error("Server is unavailable or returned an invalid response.");
                 }
 
-                const data = await response.json();
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("❌ HTML RESPONSE RECEIVED:", text);
+                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                }
                 if (!response.ok) throw new Error(data.error || data.message || 'Failed to fetch details');
                 
                 setDetails(data.data);

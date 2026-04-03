@@ -19,7 +19,14 @@ const CareerPlanView = ({ token, setView }) => {
                 });
                 
                 if (!response.ok) throw new Error('Failed to fetch Career Profile');
-                const data = await response.json();
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("❌ HTML RESPONSE RECEIVED:", text);
+                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                }
                 
                 // If data is null (never set up)
                 setProfile(data);
@@ -126,7 +133,14 @@ const CareerPlanView = ({ token, setView }) => {
                 body: JSON.stringify(payload)
             });
             if (res.ok) {
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("❌ HTML RESPONSE RECEIVED:", text);
+                    throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+                }
                 setProfile(data.data);
                 if (typeof skillToInject !== 'string') setNewSkill('');
             }
