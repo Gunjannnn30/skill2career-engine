@@ -20,21 +20,12 @@ const Register = ({ setToken, setView }) => {
                 body: JSON.stringify({ name, email, password })
             });
             
-            const contentType = res.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Server is unavailable or starting up. Please try again in a minute.");
-            }
-            
-            const text = await res.text();
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (e) {
-                console.error("❌ HTML RESPONSE RECEIVED:", text);
-                throw new Error("Backend returned HTML instead of JSON. Check API URL.");
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text);
             }
 
-            if (!res.ok) throw new Error(data.error || 'Registration failed');
+            const data = await res.json();
 
             localStorage.setItem("token", data.token);
             setToken(data.token);
