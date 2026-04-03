@@ -78,10 +78,10 @@ const generateAIResponse = async (text) => {
             "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json",
             "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
-            "X-Title": "Skill2Career AI Engine"
+            "X-Title": "Skill2Career AI"
         },
         body: JSON.stringify({
-            model: "mistralai/mistral-7b-instruct",
+            model: "openai/gpt-3.5-turbo",
             messages: [
                 {
                     role: "user",
@@ -119,6 +119,7 @@ CRITICAL INSTRUCTIONS:
     });
 
     const data = await response.json();
+    console.log("OpenRouter AI Response Data:", data);
 
     if (!response.ok) {
         console.error("OpenRouter error:", data);
@@ -178,10 +179,10 @@ const getCareerInsights = async (roleName) => {
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
-                "X-Title": "Skill2Career AI Engine"
+                "X-Title": "Skill2Career AI"
             },
             body: JSON.stringify({
-                model: "mistralai/mistral-7b-instruct",
+                model: "openai/gpt-3.5-turbo",
                 messages: [
                     {
                         role: "system",
@@ -280,10 +281,10 @@ const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) 
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
-                "X-Title": "Skill2Career AI Engine"
+                "X-Title": "Skill2Career AI"
             },
             body: JSON.stringify({
-                model: "mistralai/mistral-7b-instruct",
+                model: "openai/gpt-3.5-turbo",
                 messages: [
                     {
                         role: "system",

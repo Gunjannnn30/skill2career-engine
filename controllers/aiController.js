@@ -87,8 +87,7 @@ const uploadResumeController = async (req, res) => {
             }));
 
             return res.json({
-                success: true,
-                data: {
+                result: {
                     skills: aiData.skills || [],
                     projects: aiData.projects || 0,
                     roles: formattedRoles
@@ -112,8 +111,7 @@ const uploadResumeController = async (req, res) => {
             }));
 
             return res.json({
-                success: true,
-                data: {
+                result: {
                     skills: parsed.skills,
                     projects: parsed.projects,
                     roles: formattedRoles

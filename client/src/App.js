@@ -180,7 +180,7 @@ function App() {
                   if (!response.ok) {
                     throw new Error(data.error || data.message || "Something went wrong");
                   }
-                  const resultData = data.success ? data.data : data;
+                  const resultData = data.success ? data.data : (data.result ? data.result : data);
                   setResponseData(resultData);
                   
                   if (token) {
