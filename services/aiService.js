@@ -67,21 +67,19 @@ const analyzeText = (text) => {
 };
 
 const generateAIResponse = async (text) => {
-    const apiKey = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
     if (!apiKey || apiKey === 'your_api_key_here') {
-        throw { statusCode: 500, data: { error: "OpenRouter API key missing" } };
+        throw { statusCode: 500, data: { error: "OpenAI API key missing" } };
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
-            "X-Title": "Skill2Career AI"
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            model: "openai/gpt-3.5-turbo",
+            model: "gpt-3.5-turbo",
             messages: [
                 {
                     role: "user",
@@ -119,13 +117,13 @@ CRITICAL INSTRUCTIONS:
     });
 
     const data = await response.json();
-    console.log("OpenRouter AI Response Data:", data);
+    console.log("OpenAI Response Data:", data);
 
     if (!response.ok) {
-        console.error("OpenRouter error:", data);
+        console.error("OpenAI error:", data);
         let errMsg = (data.error && data.error.message) ? data.error.message : (data.error || "Unauthorized");
         if (errMsg.toLowerCase().includes("user not found")) {
-            errMsg = "OpenRouter Account Error: API Key invalid or User not found.";
+            errMsg = "OpenAI Account Error: API Key invalid or User not found.";
         }
         throw { statusCode: response.status || 401, message: errMsg };
     }
@@ -173,19 +171,17 @@ const getCareerInsights = async (roleName) => {
     }
 
     try {
-        const apiKey = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
+        const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
-                "X-Title": "Skill2Career AI"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "openai/gpt-3.5-turbo",
+                model: "gpt-3.5-turbo",
                 messages: [
                     {
                         role: "system",
@@ -219,7 +215,7 @@ Return JSON ONLY matching this exact structure:
                 const errData = await response.json(); 
                 errMsg = errData.error?.message || errData.error || errMsg;
                 if (errMsg.toLowerCase().includes("user not found")) {
-                    errMsg = "OpenRouter Account Error: API Key invalid or User not found.";
+                    errMsg = "OpenAI Account Error: API Key invalid or User not found.";
                 }
             } catch(e) {}
             throw new Error(errMsg);
@@ -274,19 +270,17 @@ Return JSON ONLY matching this exact structure:
 
 const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) => {
     try {
-        const apiKey = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
+        const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://skill2career-frontend.vercel.app/",
-                "X-Title": "Skill2Career AI"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "openai/gpt-3.5-turbo",
+                model: "gpt-3.5-turbo",
                 messages: [
                     {
                         role: "system",

@@ -39,7 +39,7 @@ app.post('/api/test', (req, res) => {
 res.json({ 
     success: true,
     hasAiKey: !!process.env.AI_API_KEY,
-    hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+    hasOpenAiKey: !!process.env.OPENAI_API_KEY,
     envCount: Object.keys(process.env).length
 });
 });
