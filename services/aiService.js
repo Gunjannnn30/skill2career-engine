@@ -72,7 +72,7 @@ const generateAIResponse = async (text) => {
         throw { statusCode: 500, data: { error: "Gemini API key missing" } };
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -168,7 +168,7 @@ const getCareerInsights = async (roleName) => {
         const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -261,7 +261,7 @@ const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) 
         const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
