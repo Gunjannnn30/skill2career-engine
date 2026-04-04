@@ -1,26 +1,24 @@
 const https = require('https');
 require('dotenv').config();
 
-const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
 
 const data = JSON.stringify({
-  model: "gpt-3.5-turbo",
-  messages: [{ role: "user", content: "Hi" }]
+  contents: [{ parts: [{ text: "Hi" }] }]
 });
 
 const options = {
-  hostname: 'api.openai.com',
+  hostname: 'generativelanguage.googleapis.com',
   port: 443,
-  path: '/v1/chat/completions',
+  path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${apiKey}`,
     'Content-Type': 'application/json',
     'Content-Length': data.length
   }
 };
 
-console.log("Sending request to OpenAI...");
+console.log("Sending request to Google Gemini...");
 const req = https.request(options, (res) => {
   let chunks = '';
   res.on('data', (d) => chunks += d);

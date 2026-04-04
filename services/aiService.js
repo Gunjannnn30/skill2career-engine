@@ -67,23 +67,20 @@ const analyzeText = (text) => {
 };
 
 const generateAIResponse = async (text) => {
-    const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
     if (!apiKey || apiKey === 'your_api_key_here') {
-        throw { statusCode: 500, data: { error: "OpenAI API key missing" } };
+        throw { statusCode: 500, data: { error: "Gemini API key missing" } };
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: {
-            "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-                {
-                    role: "user",
-                    content: `Analyze this resume and user skills. Suggest MULTIPLE relevant career roles.
+            contents: [{
+                parts: [{
+                    text: `Analyze this resume and user skills. Suggest MULTIPLE relevant career roles.
 
 Input: ${text}
 
@@ -111,23 +108,20 @@ CRITICAL INSTRUCTIONS:
 1. Generate AT LEAST 3-5 DIFFERENT roles.
 2. STRICT MATCH SCORING: You MUST be ruthlessly authentic with the "match" score.
 3. Return clean JSON ONLY`
-                }
-            ]
+                }]
+            }]
         })
     });
 
     const data = await response.json();
-    console.log("OpenAI Response Data:", data);
+    console.log("Gemini Response Data (generateAIResponse):", data);
 
     if (!response.ok) {
-        console.error("OpenAI error:", data);
+        console.error("Gemini error:", data);
         let errMsg = (data.error && data.error.message) ? data.error.message : (data.error || "Unauthorized");
-        if (errMsg.toLowerCase().includes("user not found")) {
-            errMsg = "OpenAI Account Error: API Key invalid or User not found.";
-        }
         throw { statusCode: response.status || 401, message: errMsg };
     }
-    let content = data.choices[0].message.content;
+    let content = data.candidates[0].content.parts[0].text;
     
     // Clean potential markdown blocks
     const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
@@ -171,25 +165,21 @@ const getCareerInsights = async (roleName) => {
     }
 
     try {
-        const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are an expert career advisor. Return ONLY valid JSON."
-                    },
-                    {
-                        role: "user",
-                        content: `Analyze this career role: "${roleName}". Context: "${wikiExtract}".
+                systemInstruction: {
+                    parts: [{ text: "You are an expert career advisor. Return ONLY valid JSON." }]
+                },
+                contents: [{
+                    parts: [{
+                        text: `Analyze this career role: "${roleName}". Context: "${wikiExtract}".
 Return JSON ONLY matching this exact structure:
 {
   "summary": "Brief 2-3 sentence overview of the role.",
@@ -204,8 +194,8 @@ Return JSON ONLY matching this exact structure:
       { "name": "Example Project 2", "description": "What they should build and why" }
   ]
 }`
-                    }
-                ]
+                    }]
+                }]
             })
         });
 
@@ -214,15 +204,13 @@ Return JSON ONLY matching this exact structure:
             try { 
                 const errData = await response.json(); 
                 errMsg = errData.error?.message || errData.error || errMsg;
-                if (errMsg.toLowerCase().includes("user not found")) {
-                    errMsg = "OpenAI Account Error: API Key invalid or User not found.";
-                }
             } catch(e) {}
             throw new Error(errMsg);
         }
         
         const data = await response.json();
-        let content = data.choices[0].message.content;
+        console.log("Gemini Response Data (getCareerInsights):", data);
+        let content = data.candidates[0].content.parts[0].text;
         const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (match) {
             content = match[1].trim();
@@ -270,25 +258,21 @@ Return JSON ONLY matching this exact structure:
 
 const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) => {
     try {
-        const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are an expert technical career strategist."
-                    },
-                    {
-                        role: "user",
-                        content: `Generate an intensely detailed, high-level timeline-based career roadmap explicitly grounded in real-world, modern industry demands.
+                systemInstruction: {
+                    parts: [{ text: "You are an expert technical career strategist." }]
+                },
+                contents: [{
+                    parts: [{
+                        text: `Generate an intensely detailed, high-level timeline-based career roadmap explicitly grounded in real-world, modern industry demands.
 User Goal: "${goal}"
 Available Timeline: "${timeline}"
 Current Skills: [${currentSkills.join(', ')}]
@@ -320,8 +304,8 @@ Return Format EXACTLY like this:
     { "phase": "Month 1-2: Advanced Fundamentals", "focus": ["Mastering low-level runtime execution inside Node.js, focusing specifically on V8 memory profiling and garbage collection loops."] }
   ]
 }`
-                    }
-                ]
+                    }]
+                }]
             })
         });
 
@@ -335,7 +319,8 @@ Return Format EXACTLY like this:
         }
         
         const data = await response.json();
-        let content = data.choices[0].message.content;
+        console.log("Gemini Response Data (generateGoalRoadmap):", data);
+        let content = data.candidates[0].content.parts[0].text;
         const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (match) {
             content = match[1].trim();

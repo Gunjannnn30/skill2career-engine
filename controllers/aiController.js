@@ -59,9 +59,9 @@ const pdfParse = require('pdf-parse');
 // @route   POST /api/ai/upload-resume
 const uploadResumeController = async (req, res) => {
     try {
-        const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') {
-            return res.status(500).json({ error: "OpenAI API key missing" });
+            return res.status(500).json({ error: "Gemini API key missing" });
         }
 
         if (!req.file) {

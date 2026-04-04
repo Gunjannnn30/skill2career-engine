@@ -39,7 +39,7 @@ app.post('/api/test', (req, res) => {
 res.json({ 
     success: true,
     hasAiKey: !!process.env.AI_API_KEY,
-    hasOpenAiKey: !!process.env.OPENAI_API_KEY,
+    hasGeminiKey: !!process.env.GEMINI_API_KEY,
     envCount: Object.keys(process.env).length
 });
 });
