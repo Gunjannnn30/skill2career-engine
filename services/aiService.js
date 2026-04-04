@@ -67,7 +67,7 @@ const analyzeText = (text) => {
 };
 
 const generateAIResponse = async (text) => {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
     if (!apiKey || apiKey === 'your_api_key_here') {
         throw { statusCode: 500, data: { error: "OpenRouter API key missing" } };
     }
@@ -123,7 +123,10 @@ CRITICAL INSTRUCTIONS:
 
     if (!response.ok) {
         console.error("OpenRouter error:", data);
-        const errMsg = (data.error && data.error.message) ? data.error.message : (data.error || "Unauthorized");
+        let errMsg = (data.error && data.error.message) ? data.error.message : (data.error || "Unauthorized");
+        if (errMsg.toLowerCase().includes("user not found")) {
+            errMsg = "OpenRouter Account Error: API Key invalid or User not found.";
+        }
         throw { statusCode: response.status || 401, message: errMsg };
     }
     let content = data.choices[0].message.content;
@@ -170,7 +173,7 @@ const getCareerInsights = async (roleName) => {
     }
 
     try {
-        const apiKey = process.env.OPENROUTER_API_KEY;
+        const apiKey = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -215,6 +218,9 @@ Return JSON ONLY matching this exact structure:
             try { 
                 const errData = await response.json(); 
                 errMsg = errData.error?.message || errData.error || errMsg;
+                if (errMsg.toLowerCase().includes("user not found")) {
+                    errMsg = "OpenRouter Account Error: API Key invalid or User not found.";
+                }
             } catch(e) {}
             throw new Error(errMsg);
         }
@@ -248,22 +254,18 @@ Return JSON ONLY matching this exact structure:
         };
 
     } catch (err) {
-        console.warn('AI Insights failed, utilizing graceful static fallback layout:', err.message);
+        console.warn(`[getCareerInsights] AI failed. Using static fallback for ${roleName}. Error: ${err.message}`);
         return {
-            summary: wikiExtract,
-            responsibilities: [
-                "Understand core business and technical requirements",
-                "Develop, maintain, and secure robust structural components",
-                "Collaborate actively with cross-functional teams"
-            ],
-            outlook: "The modern digital economy generally shows strong continued baseline growth.",
-            companies: ["Global Enterprises", "High-growth Startups", "Remote First Agencies"],
-            averagePackage: "Industry Standard Varies",
-            skills: ["Technical Literacy", "System Design", "Agile Execution"],
-            top1PercentPortfolio: "Top tier candidates demonstrate deep analytical capabilities alongside shipped multi-user applications, avoiding shallow standalone tutorials.",
+            summary: wikiExtract || `${roleName} professionals design and implement specialized systems.`,
+            responsibilities: ["Develop and maintain systems", "Collaborate with cross-functional teams", "Analyze data and optimize performance"],
+            outlook: "Positive growth with increasing demand in the market.",
+            companies: ["Top Tech Firms", "Innovative Startups", "Enterprise Corporations"],
+            averagePackage: "Industry Standard depending on location",
+            skills: ["Technical Proficiency", "Problem Solving", "Communication"],
+            top1PercentPortfolio: "A portfolio with end-to-end deployed projects that solve real-world problems and show deep architectural understanding.",
             projects: [
-                { name: "Industry API Integration", description: "Connect multiple external data layers resolving into a unified functional interface." },
-                { name: "Scalable Database Schema", description: "Architect a robust foundation supporting complex relation logic scaling under heavy bounds." }
+                { name: "Scalable Deployment", description: "A project showing ability to scale systems efficiently." },
+                { name: "Performance Optimization", description: "A case study proving significant metric improvements." }
             ],
             aiEnhanced: false
         };
@@ -272,7 +274,7 @@ Return JSON ONLY matching this exact structure:
 
 const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) => {
     try {
-        const apiKey = process.env.OPENROUTER_API_KEY;
+        const apiKey = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
