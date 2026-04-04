@@ -36,7 +36,12 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/user', userRoutes);
 
 app.post('/api/test', (req, res) => {
-res.json({ success: true });
+res.json({ 
+    success: true,
+    hasAiKey: !!process.env.AI_API_KEY,
+    hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+    envCount: Object.keys(process.env).length
+});
 });
 
 // Root route
