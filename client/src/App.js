@@ -6,25 +6,36 @@ import RoleCard from './components/RoleCard';
 import Login from './components/Login';
 import Register from './components/Register';
 import HistoryView from './components/HistoryView';
-import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import AILoading from './components/AILoading';
 import GoalPlanner from './components/GoalPlanner';
 import CareerPlanView from './components/CareerPlanView';
+import LandingPage from './components/LandingPage';
+import Footer from './components/Footer';
 import API_BASE_URL from './config';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [view, setView] = useState(token ? 'main' : 'login'); 
+  const [isGuest, setIsGuest] = useState(false);
+  const [view, setView] = useState(token ? 'main' : 'landing'); 
   
   const [inputText, setInputText] = useState('');
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Clear guest mode if navigating to auth pages
+  React.useEffect(() => {
+    if (view === 'login' || view === 'register') {
+      setIsGuest(false);
+    }
+  }, [view]);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     setToken(null);
-    setView('login');
+    setIsGuest(false);
+    setView('landing');
     setResponseData(null);
     setInputText('');
   };
@@ -141,27 +152,38 @@ function App() {
 
   return (
     <div className="app-container">
-      <Navbar 
-        token={token} 
+      <Sidebar 
+        token={token}
+        isGuest={isGuest} 
         view={view} 
         setView={setView} 
         handleLogout={handleLogout} 
       />
 
-      <main className="main-content">
-        {!token && view === 'login' && <Login setToken={setToken} setView={setView} />}
-        {!token && view === 'register' && <Register setToken={setToken} setView={setView} />}
+      <div className="main-wrapper">
+        <main className="main-content">
+        {!token && !isGuest && view === 'landing' && <LandingPage setView={setView} setIsGuest={setIsGuest} />}
+        {!token && !isGuest && view === 'login' && <Login setToken={setToken} setView={setView} />}
+        {!token && !isGuest && view === 'register' && <Register setToken={setToken} setView={setView} />}
 
-        {token && view === 'history' && <HistoryView token={token} setView={setView} />}
-        {token && view === 'careerPlan' && <CareerPlanView token={token} setView={setView} />}
+        {(token || isGuest) && view === 'history' && <HistoryView token={token} setView={setView} isGuest={isGuest} />}
+        {(token || isGuest) && view === 'careerPlan' && <CareerPlanView token={token} setView={setView} isGuest={isGuest} />}
 
-        {token && view === 'main' && (
+        {(token || isGuest) && view === 'main' && (
           <>
+            {isGuest && (
+              <div className="guest-banner fade-in">
+                You are currently in <strong>Guest Mode</strong>. <span onClick={() => setView('login')} className="guest-link">Login</span> to unlock Resume Uploads and saving Career Goals!
+              </div>
+            )}
             <InputSection 
               inputText={inputText}
               setInputText={setInputText}
               loading={loading}
               handleAnalyze={handleAnalyze}
+              responseData={responseData}
+              isGuest={isGuest}
+              setView={setView}
               handleUpload={async (file) => {
                 setLoading(true);
                 setError('');
@@ -238,10 +260,13 @@ function App() {
           </>
         )}
 
-        {token && view === 'goal' && (
-            <GoalPlanner currentSkills={responseData?.skills || []} token={token} setView={setView} />
+        {(token || isGuest) && view === 'goal' && (
+            <GoalPlanner currentSkills={responseData?.skills || []} token={token} setView={setView} isGuest={isGuest} />
         )}
       </main>
+        {/* Footer displays everywhere except Sidebar handles its own layout, so Footer stays in main-wrapper */}
+        <Footer />
+      </div>
     </div>
   );
 }

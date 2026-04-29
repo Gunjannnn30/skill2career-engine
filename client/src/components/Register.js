@@ -38,14 +38,17 @@ const Register = ({ setToken, setView }) => {
     };
 
     return (
-        <div className="auth-container">
+        <div className="auth-container fade-in">
+            <div className="auth-header">
+                <h2 className="sidebar-logo" style={{ marginBottom: '10px' }}>Skill-to-Career <br/><span>AI Engine</span></h2>
+            </div>
             <h2 className="section-title">Create Account</h2>
             {error && <div className="error-message">{error}</div>}
-            <form onSubmit={handleRegister} className="form-container" style={{ marginTop: '20px' }}>
-                <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} required className="skill-input" style={{ minHeight: '50px', marginBottom: '15px', maxWidth: '400px' }} />
-                <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="skill-input" style={{ minHeight: '50px', marginBottom: '15px', maxWidth: '400px' }} />
-                <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required className="skill-input" style={{ minHeight: '50px', marginBottom: '20px', maxWidth: '400px' }} />
-                <button type="submit" disabled={loading} className={`${loading ? 'loading' : ''}`}>
+            <form onSubmit={handleRegister} className="form-container" style={{ padding: '0', border: 'none', boxShadow: 'none' }}>
+                <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} required />
+                <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+                <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                <button type="submit" disabled={loading} className={`btn-primary ${loading ? 'loading' : ''}`}>
                     {loading ? 'Registering...' : 'Register'}
                 </button>
             </form>

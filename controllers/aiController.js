@@ -91,7 +91,8 @@ const uploadResumeController = async (req, res) => {
                 result: {
                     skills: aiData.skills || [],
                     projects: aiData.projects || 0,
-                    roles: formattedRoles
+                    roles: formattedRoles,
+                    extractedText: extractedText
                 }
             });
         } catch (apiError) {
@@ -112,7 +113,8 @@ const uploadResumeController = async (req, res) => {
                 result: {
                     skills: parsed.skills,
                     projects: parsed.projects,
-                    roles: formattedRoles
+                    roles: formattedRoles,
+                    extractedText: extractedText
                 }
             });
         }

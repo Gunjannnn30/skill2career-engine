@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Target, Lock } from 'lucide-react';
 import AILoading from './AILoading';
 import API_BASE_URL from '../config';
 
-const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
+const GoalPlanner = ({ currentSkills: initialSkills, token, setView, isGuest }) => {
     const [goal, setGoal] = useState('');
     const [timeline, setTimeline] = useState('6 months');
     
@@ -145,10 +146,10 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
 
     return (
         <div className="goal-planner-container fade-in" style={{ marginTop: '20px' }}>
-            <h2 style={{ marginBottom: '20px' }}>🎯 Set Your Career Goal</h2>
+            <h2 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}><Target size={28} color="var(--primary)" /> Set Your Career Goal</h2>
 
             <div style={{ marginBottom: '25px' }}>
-                <h4 style={{ color: '#e2e8f0', marginBottom: '10px' }}>Your Current Skills</h4>
+                <h4 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>Your Current Skills</h4>
                 <div className="editable-tags-container">
                     {activeSkills.map((skill, i) => (
                         <div key={i} className="editable-tag">
@@ -159,7 +160,7 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
                     <input 
                         type="text" 
                         placeholder="Type a skill and press Enter..." 
-                        style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', flex: 1, minWidth: '150px' }}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', outline: 'none', flex: 1, minWidth: '150px' }}
                         value={newSkillInput}
                         onChange={(e) => setNewSkillInput(e.target.value)}
                         onKeyDown={handleAddSkill}
@@ -168,7 +169,7 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
             </div>
 
             <div style={{ marginBottom: '35px' }}>
-                <h4 style={{ color: '#e2e8f0', margin: '0 0 10px 0' }}>Projects Completed So Far</h4>
+                <h4 style={{ color: 'var(--text-main)', margin: '0 0 10px 0' }}>Projects Completed So Far</h4>
                 <div className="editable-tags-container" style={{ borderColor: 'rgba(16, 185, 129, 0.3)' }}>
                     {projectsDone.map((proj, i) => (
                         <div key={i} className="editable-tag" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
@@ -179,7 +180,7 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
                     <input 
                         type="text" 
                         placeholder="E.g., Built a Next.js Ecommerce site (Press Enter)" 
-                        style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', flex: 1, minWidth: '250px' }}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', outline: 'none', flex: 1, minWidth: '250px' }}
                         value={newProjectInput}
                         onChange={(e) => setNewProjectInput(e.target.value)}
                         onKeyDown={handleAddProject}
@@ -187,7 +188,7 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
                 </div>
             </div>
 
-            <h4 style={{ color: '#6366f1', marginBottom: '15px' }}>Configure Your Target</h4>
+            <h4 style={{ color: 'var(--primary)', marginBottom: '15px' }}>Configure Your Target</h4>
             <div className="goal-form" style={{ marginTop: 0 }}>
                 <input 
                     type="text" 
@@ -208,13 +209,22 @@ const GoalPlanner = ({ currentSkills: initialSkills, token, setView }) => {
                     <option value="2 years">2 Years</option>
                 </select>
 
-                <button 
-                    className="goal-btn" 
-                    onClick={handleGenerateGoal}
-                    disabled={loading || !goal.trim()}
-                >
-                    Generate AI Dashboard
-                </button>
+                {isGuest ? (
+                    <button 
+                        className="goal-btn" 
+                        onClick={() => setView('login')}
+                    >
+                        <Lock size={18} /> Login to Generate Roadmap
+                    </button>
+                ) : (
+                    <button 
+                        className="goal-btn" 
+                        onClick={handleGenerateGoal}
+                        disabled={loading || !goal.trim()}
+                    >
+                        Generate AI Dashboard
+                    </button>
+                )}
             </div>
 
             {loading && (

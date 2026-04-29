@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOpen, Video, Book } from 'lucide-react';
 import { getSkillUrl } from '../utils/skillDictionary';
 
 const StudyResources = ({ skills }) => {
@@ -10,8 +11,8 @@ const StudyResources = ({ skills }) => {
     return (
         <div className="study-resources-container fade-in">
             <div className="role-divider" style={{ margin: '30px 0' }}></div>
-            <h3 className="section-title" style={{ fontSize: '1.4rem', marginBottom: '15px' }}>
-                📚 Recommended Study Resources
+            <h3 className="section-title" style={{ fontSize: '1.4rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <BookOpen size={24} color="var(--primary)" /> Recommended Study Resources
             </h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>
                 Curated jumping-off points to help you rapidly acquire the missing skills for this role.
@@ -31,7 +32,9 @@ const StudyResources = ({ skills }) => {
                             className="resource-card"
                         >
                             <div className="resource-header">
-                                <span className="resource-icon">{isFallback ? '🎥' : '📘'}</span>
+                                <span className="resource-icon" style={{ color: 'var(--text-muted)' }}>
+                                    {isFallback ? <Video size={18} /> : <Book size={18} />}
+                                </span>
                                 <span className="resource-skill">{skill}</span>
                             </div>
                             <div className="resource-action">

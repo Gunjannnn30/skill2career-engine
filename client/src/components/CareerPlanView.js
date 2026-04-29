@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Hourglass, Zap, Lock } from 'lucide-react';
 import AILoading from './AILoading';
 import API_BASE_URL from '../config';
 import StudyResources from './StudyResources';
 
-const CareerPlanView = ({ token, setView }) => {
+const CareerPlanView = ({ token, setView, isGuest }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -13,6 +14,10 @@ const CareerPlanView = ({ token, setView }) => {
 
     useEffect(() => {
         const fetchProfile = async () => {
+            if (isGuest) {
+                setLoading(false);
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE_URL}/api/user/career-profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -70,6 +75,22 @@ const CareerPlanView = ({ token, setView }) => {
 
     if (loading) return <div style={{ padding: '40px' }}><AILoading messages={["Loading your centralized Career Profile..."]} /></div>;
     
+    if (isGuest) {
+        return (
+            <div className="fade-in" style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <h2 style={{ fontSize: '2.2rem', marginBottom: '15px', color: 'var(--text-main)' }}>Login Required</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '30px' }}>Please login to generate, view, and mathematically track your personalized career plan.</p>
+                <button 
+                    onClick={() => setView('login')} 
+                    className="btn-primary"
+                    style={{ padding: '15px 30px', fontSize: '1.1rem' }}
+                >
+                    Login to view your career plan
+                </button>
+            </div>
+        );
+    }
+
     if (error) return <div className="error-message">Oops! {error}</div>;
 
     if (!profile || !profile.goal) {
@@ -144,11 +165,11 @@ const CareerPlanView = ({ token, setView }) => {
                 <div>
                     <p style={{ textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '10px' }}>Target Milestone</p>
                     <h2 style={{ margin: '0 0 10px 0' }}>{profile.goal}</h2>
-                    <p style={{ display: 'inline-block', background: 'rgba(99, 102, 241, 0.1)', padding: '5px 15px', borderRadius: '20px', color: '#818cf8', fontWeight: 'bold', border: '1px solid rgba(99, 102, 241, 0.3)', marginRight: '10px' }}>
+                    <p style={{ display: 'inline-block', background: 'rgba(16, 185, 129, 0.1)', padding: '5px 15px', borderRadius: '20px', color: 'var(--primary)', fontWeight: 'bold', border: '1px solid rgba(16, 185, 129, 0.3)', marginRight: '10px' }}>
                         {profile.timeline} Execution Plan
                     </p>
-                    <p style={{ display: 'inline-block', background: 'linear-gradient(135deg, #f59e0b, #ef4444)', padding: '5px 15px', borderRadius: '20px', color: 'white', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(245, 158, 11, 0.4)', fontFamily: 'monospace', fontSize: '1rem', letterSpacing: '1px' }}>
-                        ⏳ {timeLeft} Left
+                    <p style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg, #f59e0b, #ef4444)', padding: '5px 15px', borderRadius: '20px', color: 'white', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(245, 158, 11, 0.4)', fontFamily: 'monospace', fontSize: '1rem', letterSpacing: '1px' }}>
+                        <Hourglass size={16} /> {timeLeft} Left
                     </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -208,11 +229,11 @@ const CareerPlanView = ({ token, setView }) => {
             )}
 
             <div className="plan-timeline-container">
-                <h3 style={{ marginBottom: '25px', color: '#fff' }}>Strategic Implementation Roadmap</h3>
+                <h3 style={{ marginBottom: '25px', color: 'var(--text-main)' }}>Strategic Implementation Roadmap</h3>
                 
                 {profile.roadmap.map((phase, i) => (
                     <div key={i} className="plan-phase">
-                        <h3><span style={{ background: '#7c5cff', color: 'white', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.9rem' }}>{i + 1}</span> {phase.phase}</h3>
+                        <h3><span style={{ background: 'var(--primary)', color: 'white', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.9rem' }}>{i + 1}</span> {phase.phase}</h3>
                         <ul className="plan-focus-list">
                             {phase.focus.map((item, idx) => (
                                 <li key={idx}>{item}</li>
@@ -249,27 +270,34 @@ const CareerPlanView = ({ token, setView }) => {
             )}
             
             
-            <div style={{ textAlign: 'center', marginTop: '60px', padding: '30px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(79, 70, 229, 0.2)', borderRadius: '15px' }}>
-                <h3 style={{ marginBottom: '15px' }}>⚡ Inject a Learned Skill!</h3>
+            <div style={{ textAlign: 'center', marginTop: '60px', padding: '30px', background: 'var(--surface)', border: '1px solid var(--surface-border)', borderRadius: '15px' }}>
+                <h3 style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}><Zap size={24} color="#f59e0b" /> Inject a Learned Skill!</h3>
                 <p style={{ color: 'var(--text-muted)', marginBottom: '25px', maxWidth: '600px', margin: '0 auto 25px auto', lineHeight: '1.6' }}>Mastered something new today? Instantly inject it directly into your profile timeline to mathematically track your active readiness without generating an entirely new algorithmic roadmap!</p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', maxWidth: '400px', margin: '0 auto' }}>
-                    <input 
-                        type="text" 
-                        placeholder="e.g. Next.js" 
-                        value={newSkill} 
-                        onChange={e => setNewSkill(e.target.value)} 
-                        style={{ padding: '12px 15px', borderRadius: '8px', border: '1px solid rgba(99, 102, 241, 0.3)', background: 'rgba(15, 23, 42, 0.8)', color: 'white', flex: 1, outline: 'none' }} 
-                        onKeyDown={e => e.key === 'Enter' && handleAddLearnedSkill()} 
-                        disabled={isUpdating}
-                    />
-                    <button 
-                        onClick={() => handleAddLearnedSkill()} 
-                        disabled={isUpdating || !newSkill.trim()} 
-                        style={{ padding: '0 20px', background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', opacity: isUpdating || !newSkill.trim() ? 0.6 : 1, transition: 'all 0.2s' }}
-                    >
-                        {isUpdating ? '...' : 'Add'}
-                    </button>
-                </div>
+                {isGuest ? (
+                    <div className="guest-banner" style={{ marginTop: '20px' }}>
+                        <Lock size={20} style={{ verticalAlign: 'middle', marginRight: '10px' }} />
+                        <span>Login to actively track and inject skills into your profile.</span>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', maxWidth: '400px', margin: '0 auto' }}>
+                        <input 
+                            type="text" 
+                            placeholder="e.g. Next.js" 
+                            value={newSkill} 
+                            onChange={e => setNewSkill(e.target.value)} 
+                            style={{ padding: '12px 15px', borderRadius: '8px', border: '1px solid var(--surface-border)', background: 'var(--bg-color)', color: 'var(--text-main)', flex: 1, outline: 'none' }} 
+                            onKeyDown={e => e.key === 'Enter' && handleAddLearnedSkill()} 
+                            disabled={isUpdating}
+                        />
+                        <button 
+                            onClick={() => handleAddLearnedSkill()} 
+                            disabled={isUpdating || !newSkill.trim()} 
+                            style={{ padding: '0 20px', background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', opacity: isUpdating || !newSkill.trim() ? 0.6 : 1, transition: 'all 0.2s' }}
+                        >
+                            {isUpdating ? '...' : 'Add'}
+                        </button>
+                    </div>
+                )}
             </div>
             
             <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '40px' }}>Last Updated: {new Date(profile.lastUpdated).toLocaleDateString()}</p>
