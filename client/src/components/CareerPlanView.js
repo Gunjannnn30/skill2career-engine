@@ -37,7 +37,7 @@ const CareerPlanView = ({ token, setView, isGuest }) => {
         };
 
         fetchProfile();
-    }, [token]);
+    }, [token, isGuest]);
 
     useEffect(() => {
         if (!profile || !profile.timeline) return;

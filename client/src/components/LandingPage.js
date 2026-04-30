@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, LogIn, UserPlus, Search, Map, FileText } from 'lucide-react';
+import { ArrowRight, Search, Map, FileText } from 'lucide-react';
 
 const LandingPage = ({ setView, setIsGuest }) => {
     return (

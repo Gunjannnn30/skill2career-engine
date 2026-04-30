@@ -33,7 +33,7 @@ const HistoryView = ({ token, setView, isGuest }) => {
             }
         };
         fetchHistory();
-    }, [token]);
+    }, [token, isGuest]);
 
     return (
         <section className="results-section fade-in">
