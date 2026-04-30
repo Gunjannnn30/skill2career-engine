@@ -66,21 +66,82 @@ const analyzeText = (text) => {
     };
 };
 
+const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+const fetchFromGemini = async (apiKey, bodyPayload) => {
+    const models = ['gemini-3.1-flash-lite', 'gemini-2.5-flash'];
+    const maxRetriesPerModel = 2;
+    const delayMs = 1500;
+    
+    let lastErrorMsg = "Unknown error";
+    let lastStatusCode = 500;
+
+    for (let modelIndex = 0; modelIndex < models.length; modelIndex++) {
+        const model = models[modelIndex];
+        console.log(`[AI Engine] Attempting request with model: ${model}`);
+
+        for (let attempt = 1; attempt <= maxRetriesPerModel; attempt++) {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(bodyPayload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log(`[AI Engine] Successfully generated content using model: ${model}`);
+                    return data;
+                }
+
+                const isRateLimit = response.status === 429 || response.status === 503;
+                let errMsg = (data.error && data.error.message) ? data.error.message : (data.error || "Unauthorized");
+                
+                lastErrorMsg = errMsg;
+                lastStatusCode = response.status;
+
+                if (isRateLimit && attempt < maxRetriesPerModel) {
+                    console.warn(`[AI Engine] Rate limit/Quota exceeded with ${model} on attempt ${attempt}. Retrying in ${delayMs}ms...`);
+                    await delay(delayMs);
+                    continue;
+                }
+
+                console.error(`[AI Engine] Failure with model ${model}: ${errMsg}. Switching model if available.`);
+                break;
+
+            } catch (error) {
+                console.error(`[AI Engine] Network or unexpected error with model ${model} on attempt ${attempt}:`, error.message);
+                lastErrorMsg = error.message;
+                if (attempt < maxRetriesPerModel) {
+                    await delay(delayMs);
+                    continue;
+                }
+                break;
+            }
+        }
+        
+        if (modelIndex < models.length - 1) {
+            console.log(`[AI Engine] Switching to secondary model: ${models[modelIndex + 1]}`);
+        }
+    }
+
+    console.error(`[AI Engine] All AI models failed.`);
+    const err = new Error(lastErrorMsg);
+    err.statusCode = lastStatusCode || 500;
+    throw err;
+};
+
 const generateAIResponse = async (text) => {
     const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
     if (!apiKey || apiKey === 'your_api_key_here') {
         throw { statusCode: 500, data: { error: "Gemini API key missing" } };
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            contents: [{
-                parts: [{
-                    text: `Analyze this resume and user skills. Suggest MULTIPLE relevant career roles.
+    const bodyPayload = {
+        contents: [{
+            parts: [{
+                text: `Analyze this resume and user skills. Suggest MULTIPLE relevant career roles.
 
 Input: ${text}
 
@@ -108,19 +169,12 @@ CRITICAL INSTRUCTIONS:
 1. Generate AT LEAST 3-5 DIFFERENT roles.
 2. STRICT MATCH SCORING: You MUST be ruthlessly authentic with the "match" score.
 3. Return clean JSON ONLY`
-                }]
             }]
-        })
-    });
+        }]
+    };
 
-    const data = await response.json();
+    const data = await fetchFromGemini(apiKey, bodyPayload);
     console.log("Gemini Response Data (generateAIResponse):", data);
-
-    if (!response.ok) {
-        console.error("Gemini error:", data);
-        let errMsg = (data.error && data.error.message) ? data.error.message : (data.error || "Unauthorized");
-        throw { statusCode: response.status || 401, message: errMsg };
-    }
     let content = data.candidates[0].content.parts[0].text;
     
     // Clean potential markdown blocks
@@ -168,18 +222,13 @@ const getCareerInsights = async (roleName) => {
         const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
+        const bodyPayload = {
+            systemInstruction: {
+                parts: [{ text: "You are an expert career advisor. Return ONLY valid JSON." }]
             },
-            body: JSON.stringify({
-                systemInstruction: {
-                    parts: [{ text: "You are an expert career advisor. Return ONLY valid JSON." }]
-                },
-                contents: [{
-                    parts: [{
-                        text: `Analyze this career role: "${roleName}". Context: "${wikiExtract}".
+            contents: [{
+                parts: [{
+                    text: `Analyze this career role: "${roleName}". Context: "${wikiExtract}".
 Return JSON ONLY matching this exact structure:
 {
   "summary": "Brief 2-3 sentence overview of the role.",
@@ -194,21 +243,11 @@ Return JSON ONLY matching this exact structure:
       { "name": "Example Project 2", "description": "What they should build and why" }
   ]
 }`
-                    }]
                 }]
-            })
-        });
+            }]
+        };
 
-        if (!response.ok) {
-            let errMsg = `AI API failed: ${response.statusText}`;
-            try { 
-                const errData = await response.json(); 
-                errMsg = errData.error?.message || errData.error || errMsg;
-            } catch(e) {}
-            throw new Error(errMsg);
-        }
-        
-        const data = await response.json();
+        const data = await fetchFromGemini(apiKey, bodyPayload);
         console.log("Gemini Response Data (getCareerInsights):", data);
         let content = data.candidates[0].content.parts[0].text;
         const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
@@ -261,18 +300,13 @@ const generateGoalRoadmap = async (goal, timeline, currentSkills, projectsDone) 
         const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
         if (!apiKey || apiKey === 'your_api_key_here') throw new Error('AI API KEY missing');
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
+        const bodyPayload = {
+            systemInstruction: {
+                parts: [{ text: "You are an expert technical career strategist." }]
             },
-            body: JSON.stringify({
-                systemInstruction: {
-                    parts: [{ text: "You are an expert technical career strategist." }]
-                },
-                contents: [{
-                    parts: [{
-                        text: `Generate an intensely detailed, high-level timeline-based career roadmap explicitly grounded in real-world, modern industry demands.
+            contents: [{
+                parts: [{
+                    text: `Generate an intensely detailed, high-level timeline-based career roadmap explicitly grounded in real-world, modern industry demands.
 User Goal: "${goal}"
 Available Timeline: "${timeline}"
 Current Skills: [${currentSkills.join(', ')}]
@@ -304,21 +338,11 @@ Return Format EXACTLY like this:
     { "phase": "Month 1-2: Advanced Fundamentals", "focus": ["Mastering low-level runtime execution inside Node.js, focusing specifically on V8 memory profiling and garbage collection loops."] }
   ]
 }`
-                    }]
                 }]
-            })
-        });
+            }]
+        };
 
-        if (!response.ok) {
-            let errMsg = `AI API failed: ${response.statusText}`;
-            try { 
-                const errData = await response.json(); 
-                errMsg = errData.error?.message || errData.error || errMsg;
-            } catch(e) {}
-            throw new Error(errMsg);
-        }
-        
-        const data = await response.json();
+        const data = await fetchFromGemini(apiKey, bodyPayload);
         console.log("Gemini Response Data (generateGoalRoadmap):", data);
         let content = data.candidates[0].content.parts[0].text;
         const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);

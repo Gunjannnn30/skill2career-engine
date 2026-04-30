@@ -14,6 +14,18 @@ const Register = ({ setToken, setView }) => {
         setError('');
 
         try {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setError('Please enter a valid email address.');
+                setLoading(false);
+                return;
+            }
+
+            if (password.length < 6) {
+                setError('Password must be at least 6 characters long.');
+                setLoading(false);
+                return;
+            }
+
             const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

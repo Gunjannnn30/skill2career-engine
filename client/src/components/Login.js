@@ -13,6 +13,12 @@ const Login = ({ setToken, setView }) => {
         setError('');
 
         try {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setError('Please enter a valid email address.');
+                setLoading(false);
+                return;
+            }
+
             const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -65,9 +65,9 @@ const LandingPage = ({ setView, setIsGuest }) => {
                 </div>
             </div>
 
-            <div className="landing-bottom-cta">
-                <h2>Ready to accelerate your career?</h2>
-                <div className="landing-actions" style={{ marginTop: '20px' }}>
+            <div className="landing-bottom-cta" style={{ marginTop: '100px', paddingTop: '60px', marginBottom: '40px', borderTop: '1px solid var(--border)' }}>
+                <h2 style={{ marginBottom: '20px' }}>Ready to accelerate your career?</h2>
+                <div className="landing-actions" style={{ marginTop: '30px' }}>
                     <button className="btn-primary" onClick={() => setView('register')}>Create Free Account</button>
                     <button className="btn-outline" onClick={() => setView('login')}>Login</button>
                 </div>
