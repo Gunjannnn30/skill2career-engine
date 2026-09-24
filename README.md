@@ -2,6 +2,9 @@
 
 **An AI-powered career guidance platform** that analyzes a user's resume or self-reported skills, matches them against real-world job roles, and generates a personalized, phase-by-phase roadmap — missing skills, project ideas, and companies hiring — to close the gap. Built on the MERN stack and powered by Google's Gemini API, with a fully deterministic offline fallback engine so the product never leaves a user with a broken screen.
 
+<img width="1280" height="640" alt="social-preview" src="https://github.com/user-attachments/assets/ec12a406-8b94-46a2-83c2-4636366092d9" />
+
+
 **Live:** Backend deployed on **[Render](https://render.com)** · Frontend deployed on **[Vercel](https://vercel.com)**
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
