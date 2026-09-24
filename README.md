@@ -349,3 +349,7 @@ A: `analyze` (and `upload-resume`) answer "where do I currently stand, and which
 
 **Q: How is authentication handled, and what happens when a JWT expires?**
 A: On login or registration, the server issues a JWT signed with `JWT_SECRET`, valid for 30 days, containing the user's ID. Every protected request must include this token in the `Authorization: Bearer <token>` header. The middleware verifies the signature and expiration, then looks up the corresponding user in MongoDB. If the token is missing, invalid, or expired, the request is rejected with a `401 Unauthorized` response, and the client is expected to prompt the user to log in again.
+
+---
+ 
+Written by Gunjan Jain — this project started as a way to make career guidance feel less generic and more like it actually knows you. Built end-to-end (frontend, backend, and AI integration) as a hands-on way to learn how real AI-powered products are structured — feedback, issues, and pull requests are always welcome.
