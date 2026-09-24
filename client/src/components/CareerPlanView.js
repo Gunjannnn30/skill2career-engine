@@ -183,15 +183,15 @@ const CareerPlanView = ({ token, setView, isGuest }) => {
             <div className="plan-stats">
                 <div className="plan-stat-card">
                     <h4>Current Skills Matrix</h4>
-                    <p>{profile.currentSkills.length > 0 ? profile.currentSkills.length : 0}</p>
+                    <p>{(profile.currentSkills && profile.currentSkills.length > 0) ? profile.currentSkills.length : 0}</p>
                 </div>
                 <div className="plan-stat-card">
                     <h4>Target Skills Gap</h4>
-                    <p style={{ color: '#ef4444' }}>{profile.targetSkills.length > 0 ? profile.targetSkills.length : 'Completed'}</p>
+                    <p style={{ color: '#ef4444' }}>{(profile.targetSkills && profile.targetSkills.length > 0) ? profile.targetSkills.length : 'Completed'}</p>
                 </div>
                 <div className="plan-stat-card">
                     <h4>Phases Required</h4>
-                    <p style={{ color: '#10b981' }}>{profile.roadmap.length}</p>
+                    <p style={{ color: '#10b981' }}>{profile.roadmap ? profile.roadmap.length : 0}</p>
                 </div>
             </div>
 

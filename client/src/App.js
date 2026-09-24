@@ -163,8 +163,8 @@ function App() {
       <div className="main-wrapper">
         <main className="main-content">
         {!token && !isGuest && view === 'landing' && <LandingPage setView={setView} setIsGuest={setIsGuest} />}
-        {!token && !isGuest && view === 'login' && <Login setToken={setToken} setView={setView} />}
-        {!token && !isGuest && view === 'register' && <Register setToken={setToken} setView={setView} />}
+        {!token && !isGuest && view === 'login' && <Login setToken={setToken} setView={setView} setIsGuest={setIsGuest} />}
+        {!token && !isGuest && view === 'register' && <Register setToken={setToken} setView={setView} setIsGuest={setIsGuest} />}
 
         {(token || isGuest) && view === 'history' && <HistoryView token={token} setView={setView} isGuest={isGuest} />}
         {(token || isGuest) && view === 'careerPlan' && <CareerPlanView token={token} setView={setView} isGuest={isGuest} />}

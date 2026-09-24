@@ -353,6 +353,17 @@ A: `analyze` (and `upload-resume`) answer "where do I currently stand, and which
 **Q: How is authentication handled, and what happens when a JWT expires?**
 A: On login or registration, the server issues a JWT signed with `JWT_SECRET`, valid for 30 days, containing the user's ID. Every protected request must include this token in the `Authorization: Bearer <token>` header. The middleware verifies the signature and expiration, then looks up the corresponding user in MongoDB. If the token is missing, invalid, or expired, the request is rejected with a `401 Unauthorized` response, and the client is expected to prompt the user to log in again.
 
+**Q: Why was I getting "Operation `users.findOne()` buffering timed out after 10000ms" and how was it fixed?**
+A: In Mongoose, if the database connection has not been established, queries are queued in memory for 10 seconds (`bufferCommands: true`) before failing with a timeout. This happens when:
+1. `MONGO_URI` (or `MONGODB_URI`) is missing from the Render environment variables.
+2. In MongoDB Atlas, **Network Access** does not allow incoming connections from Render (`0.0.0.0/0` must be whitelisted because Render uses dynamic IP addresses).
+3. The server only attempted to connect once at boot and never retried.
+
+This has been resolved by:
+- Disabling command buffering (`bufferCommands: false`) and adding a 5-second connection timeout with auto-reconnection retries.
+- Implementing an automatic **resilient in-memory fallback user store** (`services/userService.js`) so registration, login, and profiles work smoothly without crashing even if MongoDB is temporarily unreachable.
+- Providing an instant `/api/test` and `/api/health` diagnostic endpoint to monitor database connection state in real time.
+
 ---
  
 Written by Gunjan Jain — this project started as a way to make career guidance feel less generic and more like it actually knows you. Built end-to-end (frontend, backend, and AI integration) as a hands-on way to learn how real AI-powered products are structured — feedback, issues, and pull requests are always welcome.
